@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rétroaction sur mes réponses en histoire</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, rgba(7,45,110,0.1) 0%, rgba(208,13,43,0.1) 100%);
+            min-height: 100vh;
+            color: rgba(7,45,110,1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-top: 5px solid rgba(7,45,110,1);
+        }
+
+        .header h1 {
+            color: rgba(7,45,110,1);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(208,13,43,1);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .main-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: rgba(7,45,110,1);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .btn:hover {
+            background: rgba(208,13,43,1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(208,13,43,1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(7,45,110,1);
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-left: 5px solid rgba(7,45,110,1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: rgba(7,45,110,1);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: rgba(7,45,110,1);
+        }
+
+        .feedback-grid {
+            margin-top: 30px;
+        }
+
+        .feedback-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid rgba(208,13,43,1);
+        }
+
+        .feedback-section h3 {
+            color: rgba(7,45,110,1);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .feedback-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .feedback-row label {
+            margin-bottom: 0 !important;
+        }
+
+        .feedback-row input {
+            width: 80px !important;
+            text-align: center;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .password-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .chart-card h3 {
+            text-align: center;
+            color: rgba(7,45,110,1);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .feedback-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+        }
+
+        .back-btn {
+            background: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: rgba(7,45,110,1);
+        }
+
+        .teacher-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .teacher-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .evaluation-setup {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(7,45,110,1);
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .student-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .student-card:hover {
+            background: rgba(7,45,110,0.1);
+            border-color: rgba(7,45,110,1);
+        }
+
+        .class-selector {
+            margin-bottom: 20px;
+        }
+
+        .class-selector button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .class-selector button.active {
+            background: rgba(208,13,43,1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Page d'accueil -->
+        <div id="home-page">
+            <div class="header">
+                <h1>Rétroaction sur mes réponses en histoire</h1>
+                <p>Secondaire 3 - Histoire du Québec</p>
+            </div>
+            
+            <div class="main-buttons">
+                <button class="btn" onclick="showStudentLogin()">Entrée de mes données</button>
+                <button class="btn btn-secondary" onclick="showStudentGraphs()">Voir mes graphiques</button>
+                <button class="btn" onclick="showTeacherLogin()">Enseignant</button>
+            </div>
+        </div>
+
+        <!-- Connexion élève -->
+        <div id="student-login" class="hidden">
+            <button class="btn back-btn" onclick="showHome()">← Retour</button>
+            <div class="card">
+                <h2>Connexion élève</h2>
+                <div class="password-form">
+                    <div class="form-group">
+                        <label for="student-password">Mot de passe :</label>
+                        <input type="password" id="student-password" placeholder="*VOTREMOTDEPASSE">
+                    </div>
+                    <button class="btn" onclick="loginStudent()">Se connecter</button>
+                    <div id="student-login-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connexion enseignant -->
+        <div id="teacher-login" class="hidden">
+            <button class="btn back-btn" onclick="showHome()">← Retour</button>
+            <div class="card">
+                <h2>Connexion enseignant</h2>
+                <div class="password-form">
+                    <div class="form-group">
+                        <label for="teacher-password">Mot de passe :</label>
+                        <input type="password" id="teacher-password">
+                    </div>
+                    <button class="btn" onclick="loginTeacher()">Se connecter</button>
+                    <div id="teacher-login-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de données élève -->
+        <div id="student-form" class="hidden">
+            <button class="btn back-btn" onclick="showHome()">← Retour</button>
+            <div class="card">
+                <h2>Rétroaction sur mes réponses en histoire</h2>
+                <div id="form-message"></div>
+                
+                <div class="form-group">
+                    <label>Ton nom :</label>
+                    <input type="text" id="student-name" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ta classe :</label>
+                    <input type="text" id="student-class" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="evaluation-select">Nom de l'évaluation :</label>
+                    <select id="evaluation-select">
+                        <option value="">Sélectionner une évaluation</option>
+                    </select>
+                </div>
+
+                <div class="feedback-grid">
+                    <div class="feedback-section">
+                        <h3>Qualité de tes réponses</h3>
+                        <div class="feedback-row">
+                            <label>VSC :</label>
+                            <input type="number" id="qualite-vsc" min="0" value="0">
+                        </div>
+                        <div class="feedback-row">
+                            <label>Hors sujet :</label>
+                            <input type="number" id="qualite-hors-sujet" min="0" value="0">
+                        </div>
+                        <div class="feedback-row">
+                            <label>Faux :</label>
+                            <input type="number" id="qualite-faux" min="0" value="0">
+                        </div>
+                        <div class="feedback-row">
+                            <label>Incomplet :</label>
+                            <input type="number" id="qualite-incomplet" min="0" value="0">
+                        </div>
+                    </div>
+
+                    <div class="feedback-section">
+                        <h3>Que faire ensuite</h3>
+                        <div class="feedback-row">
+                            <label>Analyse mieux la question :</label>
+                            <input type="number" id="ensuite-analyse" min="0" value="0">
+                        </div>
+                        <div class="feedback-row">
+                            <label>Fais mieux ta lecture stratégique :</label>
+                            <input type="number" id="ensuite-lecture" min="0" value="0">
+                        </div>
+                        <div class="feedback-row">
+                            <label>Rédige mieux ta réponse :</label>
+                            <input type="number" id="ensuite-redaction" min="0" value="0">
+                        </div>
+                        <div class="feedback-row" id="memoire-row">
+                            <label>Récupère mieux en mémoire avant l'examen :</label>
+                            <input type="number" id="ensuite-memoire" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="saveStudentData()">Enregistrer mes données</button>
+            </div>
+        </div>
+
+        <!-- Graphiques élève -->
+        <div id="student-graphs" class="hidden">
+            <button class="btn back-btn" onclick="showHome()">← Retour</button>
+            <div class="card">
+                <h2>Rétroaction sur mes réponses en histoire</h2>
+                <div class="password-form">
+                    <div class="form-group">
+                        <label for="graphs-password">Mot de passe :</label>
+                        <input type="password" id="graphs-password" placeholder="*VOTREMOTDEPASSE">
+                    </div>
+                    <button class="btn" onclick="showStudentGraphsData()">Voir mes graphiques</button>
+                    <div id="graphs-login-message"></div>
+                </div>
+            </div>
+            
+            <div id="student-charts" class="hidden">
+                <div class="card">
+                    <h3 id="student-charts-title">Mes graphiques</h3>
+                    <div id="evaluation-charts"></div>
+                    <div id="summary-charts" class="charts-container">
+                        <div class="chart-card">
+                            <h3>Qualité de tes réponses - Toutes évaluations</h3>
+                            <canvas id="summary-quality-chart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Que faire ensuite - Toutes évaluations</h3>
+                            <canvas id="summary-next-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interface enseignant -->
+        <div id="teacher-panel" class="hidden">
+            <button class="btn back-btn" onclick="showHome()">← Retour</button>
+            <div class="teacher-panel">
+                <h2>Interface Enseignant</h2>
+                
+                <div class="teacher-controls">
+                    <div class="evaluation-setup">
+                        <h3>Créer une nouvelle évaluation</h3>
+                        <div class="form-group">
+                            <label for="new-eval-name">Nom de l'évaluation :</label>
+                            <input type="text" id="new-eval-name" placeholder="Ex: C1-Évaluation 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="eval-type">Type d'évaluation :</label>
+                            <select id="eval-type">
+                                <option value="C1">C1 (Décrire)</option>
+                                <option value="C2">C2 (Expliquer)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="question-count">Nombre de questions :</label>
+                            <input type="number" id="question-count" min="1" max="20" value="15">
+                        </div>
+                        <button class="btn" onclick="createEvaluation()">Créer l'évaluation</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Visualisation des données</h3>
+                    <div class="class-selector">
+                        <button class="btn" onclick="showClassData('all')">Tous les élèves</button>
+                        <button class="btn" onclick="showClassData('301')">Classe 301</button>
+                        <button class="btn" onclick="showClassData('302')">Classe 302</button>
+                        <button class="btn" onclick="showClassData('303')">Classe 303</button>
+                    </div>
+                    <div id="teacher-charts"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Données individuelles</h3>
+                    <div id="students-list" class="students-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Google Sheets (à remplacer par votre ID de feuille)
+        const SHEET_ID = 'VOTRE_ID_GOOGLE_SHEETS';
+        const API_KEY = 'VOTRE_CLE_API';
+        
+        // Données des élèves (extraites du fichier Excel)
+        const studentsData = [
+            {nom: "Audet Kloé", classe: 301, motDePasse: "*AUDK84601000"},
+            {nom: "Barrière Ann-Élie", classe: 301, motDePasse: "*BARA66591101"},
+            {nom: "Bilodeau Léa", classe: 301, motDePasse: "*BILL69531109"},
+            {nom: "Bolduc Hayden", classe: 301, motDePasse: "*BOLH74071108"},
+            {nom: "Chouinard Laurie", classe: 301, motDePasse: "*CHOL76541108"},
+            {nom: "Croteau Éléonore", classe: 301, motDePasse: "*CROE84621006"},
+            {nom: "Cusson Élodie", classe: 301, motDePasse: "*CUSE79551109"},
+            {nom: "Delisle Daphnée", classe: 301, motDePasse: "*DELD89581108"},
+            {nom: "Drouin Cyr Edouard", classe: 301, motDePasse: "*DROE75081108"},
+            {nom: "Giguère Jérémy", classe: 301, motDePasse: "*GIGJ89531005"},
+            {nom: "Giroux Anthony", classe: 301, motDePasse: "*GIRA87571000"},
+            {nom: "Harvey Catherine", classe: 301, motDePasse: "*HARC73051105"},
+            {nom: "Lafleur Jade", classe: 301, motDePasse: "*LAFJ86591109"},
+            {nom: "Lagrange Émilia", classe: 301, motDePasse: "*LAGE87531009"},
+            {nom: "Landry Gabriel", classe: 301, motDePasse: "*LANG76091009"},
+            {nom: "Masson Édouard", classe: 301, motDePasse: "*MASE87071008"},
+            {nom: "Morency Catherine", classe: 301, motDePasse: "*MORC69051005"},
+            {nom: "Paradis Tristan", classe: 301, motDePasse: "*PART74081100"},
+            {nom: "Pelletier Kamylle", classe: 301, motDePasse: "*PELK86591001"},
+            {nom: "Picard Nicolas", classe: 301, motDePasse: "*PICN75051108"},
+            {nom: "Raymond Laurie", classe: 301, motDePasse: "*RAYL78011101"},
+            {nom: "Rondeau Édouard", classe: 301, motDePasse: "*RONE84051106"},
+            {nom: "Therrien Laurie", classe: 301, motDePasse: "*THEL75091009"},
+            {nom: "Vézina Sarah", classe: 301, motDePasse: "*VEZS84641008"},
+            {nom: "Audy Cédric", classe: 302, motDePasse: "*AUDC83091105"},
+            {nom: "Beauséjour Maude", classe: 302, motDePasse: "*BEAM68571108"},
+            {nom: "Bélisle Florence", classe: 302, motDePasse: "*BELF78591100"},
+            {nom: "Bernier Claudia", classe: 302, motDePasse: "*BERC86531009"},
+            {nom: "Bouchard Jérémy", classe: 302, motDePasse: "*BOUJ86051105"},
+            {nom: "Bouchard-Moisan Laurent", classe: 302, motDePasse: "*BOUL75081108"},
+            {nom: "Brouillette Gabrielle", classe: 302, motDePasse: "*BROG84521008"},
+            {nom: "Duchesne Julie", classe: 302, motDePasse: "*DUCJ75511101"},
+            {nom: "Fournier Océane", classe: 302, motDePasse: "*FOUO84581100"},
+            {nom: "Giroux Coralie", classe: 302, motDePasse: "*GIRC83531000"},
+            {nom: "Guindon Amélie", classe: 302, motDePasse: "*GUIA89521101"},
+            {nom: "Hébert Catherine", classe: 302, motDePasse: "*HEBC84531109"},
+            {nom: "Lacroix Xavier", classe: 302, motDePasse: "*LACX76071005"},
+            {nom: "Laflamme Xavier", classe: 302, motDePasse: "*LAFX84571006"},
+            {nom: "Laliberté Ève", classe: 302, motDePasse: "*LALE86511001"},
+            {nom: "Leduc Anthony", classe: 302, motDePasse: "*LEDA83071108"},
+            {nom: "Lemay Gabriel", classe: 302, motDePasse: "*LEMG86071009"},
+            {nom: "Martel Antoine", classe: 302, motDePasse: "*MARA73081000"},
+            {nom: "Mercier Nathan", classe: 302, motDePasse: "*MERN78041005"},
+            {nom: "Moreau William", classe: 302, motDePasse: "*MOREW87571000"},
+            {nom: "Noreau Alicia", classe: 302, motDePasse: "*NORA86591105"},
+            {nom: "Pelletier Vanessa", classe: 302, motDePasse: "*PELV75521000"},
+            {nom: "Plante Étienne", classe: 302, motDePasse: "*PLAE89581108"},
+            {nom: "Rodrigue Lucas", classe: 302, motDePasse: "*RODL76041101"},
+            {nom: "Roy Loïc", classe: 302, motDePasse: "*ROYL75011009"},
+            {nom: "Ruest Félix", classe: 302, motDePasse: "*RUEF84091005"},
+            {nom: "Thériault Sandrine", classe: 302, motDePasse: "*THES87521101"},
+            {nom: "Thibault Gabriel", classe: 302, motDePasse: "*THIG76591109"},
+            {nom: "Tremblay Charles", classe: 302, motDePasse: "*TREC74051008"},
+            {nom: "Tremblay Samuel", classe: 302, motDePasse: "*TRES84611008"},
+            {nom: "Alvarez Kayla", classe: 303, motDePasse: "*ALVK72531101"},
+            {nom: "Beaudoin Théodore", classe: 303, motDePasse: "*BEAT73011108"},
+            {nom: "Bellemare Léa-Jade", classe: 303, motDePasse: "*BELL89591106"},
+            {nom: "Bernier Maddyson", classe: 303, motDePasse: "*BERM78521105"},
+            {nom: "Bouchard Lydia", classe: 303, motDePasse: "*BOUL86531001"},
+            {nom: "Bourassa Loïc", classe: 303, motDePasse: "*BOUL87571001"},
+            {nom: "Cantin David", classe: 303, motDePasse: "*CAND87051001"},
+            {nom: "Caouette Emma", classe: 303, motDePasse: "*CAOE83531008"},
+            {nom: "Chénard Mya", classe: 303, motDePasse: "*CHEM73541108"},
+            {nom: "Chouinard Rosalie", classe: 303, motDePasse: "*CHOR75531105"},
+            {nom: "Desjardins Livia", classe: 303, motDePasse: "*DESL89591100"},
+            {nom: "Doyon Chloé", classe: 303, motDePasse: "*DOYC78531105"},
+            {nom: "Drouin Anthony", classe: 303, motDePasse: "*DROA69081101"},
+            {nom: "Fréchette Kyllian", classe: 303, motDePasse: "*FREK83521101"},
+            {nom: "Gonthier Naomy", classe: 303, motDePasse: "*GONN69571000"},
+            {nom: "Laberge Naomie", classe: 303, motDePasse: "*LABN89571106"},
+            {nom: "Lafleur Noémie", classe: 303, motDePasse: "*LAFN84521000"},
+            {nom: "Laliberté Catherine", classe: 303, motDePasse: "*LALC87561100"},
+            {nom: "Lecours Rebecca", classe: 303, motDePasse: "*LECR78561105"},
+            {nom: "Lemay Katelle", classe: 303, motDePasse: "*LEMK86531100"},
+            {nom: "Marquis Nathan", classe: 303, motDePasse: "*MARN84581001"},
+            {nom: "Martin Gabrielle", classe: 303, motDePasse: "*MARG75521001"},
+            {nom: "Mercier Mia", classe: 303, motDePasse: "*MERM78541101"},
+            {nom: "Moisan Ariane", classe: 303, motDePasse: "*MOIA84521008"},
+            {nom: "Naud Lorine", classe: 303, motDePasse: "*NAUL76551006"},
+            {nom: "Noiseux Catherine", classe: 303, motDePasse: "*NOIC85581008"},
+            {nom: "Ouellet Emmy", classe: 303, motDePasse: "*OUEE85551105"},
+            {nom: "Pellerin Arnaud", classe: 303, motDePasse: "*PELA87531000"},
+            {nom: "Pilote Julien", classe: 303, motDePasse: "*PILJ73051008"},
+            {nom: "Poulin Emma", classe: 303, motDePasse: "*POUE73081101"},
+            {nom: "Rioux Anthony", classe: 303, motDePasse: "*RIOA73511009"},
+            {nom: "Tardif Elisabeth", classe: 303, motDePasse: "*TARE76531100"},
+            {nom: "Thériault Julia", classe: 303, motDePasse: "*THEJ83541005"},
+            {nom: "Toupin Laurie", classe: 303, motDePasse: "*TOUL78561009"},
+            {nom: "Tremblay Victoria", classe: 303, motDePasse: "*TREV89511101"}
+        ];
+
+        // Variables globales
+        let currentStudent = null;
+        let evaluations = [];
+        let studentData = [];
+
+        // Couleurs de l'école
+        const schoolColors = {
+            blue: 'rgba(7,45,110,1)',
+            red: 'rgba(208,13,43,1)',
+            white: 'rgba(255,255,255,1)',
+            blueLight: 'rgba(7,45,110,0.7)',
+            redLight: 'rgba(208,13,43,0.7)'
+        };
+
+        // Navigation
+        function showHome() {
+            hideAllPages();
+            document.getElementById('home-page').classList.remove('hidden');
+        }
+
+        function showStudentLogin() {
+            hideAllPages();
+            document.getElementById('student-login').classList.remove('hidden');
+        }
+
+        function showTeacherLogin() {
+            hideAllPages();
+            document.getElementById('teacher-login').classList.remove('hidden');
+        }
+
+        function showStudentGraphs() {
+            hideAllPages();
+            document.getElementById('student-graphs').classList.remove('hidden');
+        }
+
+        function hideAllPages() {
+            const pages = ['home-page', 'student-login', 'teacher-login', 'student-form', 'student-graphs', 'teacher-panel'];
+            pages.forEach(page => {
+                document.getElementById(page).classList.add('hidden');
+            });
+            document.getElementById('student-charts').classList.add('hidden');
+        }
+
+        // Authentification élève
+        function loginStudent() {
+            const password = document.getElementById('student-password').value;
+            const messageDiv = document.getElementById('student-login-message');
+            
+            const student = studentsData.find(s => s.motDePasse === password);
+            
+            if (student) {
+                currentStudent = student;
+                showStudentForm();
+                messageDiv.innerHTML = '';
+            } else {
+                messageDiv.innerHTML = '<div class="message error">Mot de passe incorrect</div>';
+            }
+        }
+
+        // Authentification enseignant
+        function loginTeacher() {
+            const password = document.getElementById('teacher-password').value;
+            const messageDiv = document.getElementById('teacher-login-message');
+            
+            if (password === '2526') {
+                showTeacherPanel();
+                messageDiv.innerHTML = '';
+            } else {
+                messageDiv.innerHTML = '<div class="message error">Mot de passe incorrect</div>';
+            }
+        }
+
+        // Afficher le formulaire élève
+        function showStudentForm() {
+            hideAllPages();
+            document.getElementById('student-form').classList.remove('hidden');
+            
+            // Remplir les informations de l'élève
+            document.getElementById('student-name').value = currentStudent.nom;
+            document.getElementById('student-class').value = currentStudent.classe;
+            
+            // Charger les évaluations disponibles
+            loadEvaluations();
+        }
+
+        // Charger les évaluations
+        function loadEvaluations() {
+            const select = document.getElementById('evaluation-select');
+            select.innerHTML = '<option value="">Sélectionner une évaluation</option>';
+            
+            // Charger depuis localStorage (simulation)
+            const storedEvals = JSON.parse(localStorage.getItem('evaluations') || '[]');
+            evaluations = storedEvals;
+            
+            evaluations.forEach(eval => {
+                const option = document.createElement('option');
+                option.value = eval.name;
+                option.textContent = `${eval.name} (${eval.type} - ${eval.questions} questions)`;
+                option.dataset.type = eval.type;
+                select.appendChild(option);
+            });
+        }
+
+        // Gérer le changement d'évaluation
+        document.addEventListener('DOMContentLoaded', function() {
+            const evalSelect = document.getElementById('evaluation-select');
+            if (evalSelect) {
+                evalSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const evalType = selectedOption.dataset.type;
+                    
+                    // Afficher/masquer la ligne "mémoire" selon le type C1/C2
+                    const memoireRow = document.getElementById('memoire-row');
+                    if (memoireRow) {
+                        if (evalType === 'C2') {
+                            memoireRow.style.display = 'none';
+                            document.getElementById('ensuite-memoire').value = '0';
+                        } else {
+                            memoireRow.style.display = 'block';
+                        }
+                    }
+                });
+            }
+        });
+
+        // Sauvegarder les données de l'élève
+        function saveStudentData() {
+            const messageDiv = document.getElementById('form-message');
+            const evaluationName = document.getElementById('evaluation-select').value;
+            
+            if (!evaluationName) {
+                messageDiv.innerHTML = '<div class="message warning">Il faut choisir une évaluation</div>';
+                return;
+            }
+            
+            const data = {
+                nom: currentStudent.nom,
+                classe: currentStudent.classe,
+                evaluation: evaluationName,
+                date: new Date().toISOString(),
+                qualite: {
+                    vsc: parseInt(document.getElementById('qualite-vsc').value) || 0,
+                    horsSujet: parseInt(document.getElementById('qualite-hors-sujet').value) || 0,
+                    faux: parseInt(document.getElementById('qualite-faux').value) || 0,
+                    incomplet: parseInt(document.getElementById('qualite-incomplet').value) || 0
+                },
+                ensuite: {
+                    analyse: parseInt(document.getElementById('ensuite-analyse').value) || 0,
+                    lecture: parseInt(document.getElementById('ensuite-lecture').value) || 0,
+                    redaction: parseInt(document.getElementById('ensuite-redaction').value) || 0,
+                    memoire: parseInt(document.getElementById('ensuite-memoire').value) || 0
+                }
+            };
+            
+            // Sauvegarder dans localStorage (simulation)
+            let allData = JSON.parse(localStorage.getItem('studentData') || '[]');
+            
+            // Supprimer les données existantes pour cette évaluation et cet élève
+            allData = allData.filter(d => !(d.nom === data.nom && d.evaluation === data.evaluation));
+            
+            // Ajouter les nouvelles données
+            allData.push(data);
+            localStorage.setItem('studentData', JSON.stringify(allData));
+            
+            // Réinitialiser le formulaire
+            resetForm();
+            
+            messageDiv.innerHTML = '<div class="message success">Tes données ont bien été enregistrées</div>';
+        }
+
+        // Réinitialiser le formulaire
+        function resetForm() {
+            document.getElementById('evaluation-select').value = '';
+            document.getElementById('qualite-vsc').value = '0';
+            document.getElementById('qualite-hors-sujet').value = '0';
+            document.getElementById('qualite-faux').value = '0';
+            document.getElementById('qualite-incomplet').value = '0';
+            document.getElementById('ensuite-analyse').value = '0';
+            document.getElementById('ensuite-lecture').value = '0';
+            document.getElementById('ensuite-redaction').value = '0';
+            document.getElementById('ensuite-memoire').value = '0';
+        }
+
+        // Afficher les graphiques élève
+        function showStudentGraphsData() {
+            const password = document.getElementById('graphs-password').value;
+            const messageDiv = document.getElementById('graphs-login-message');
+            
+            const student = studentsData.find(s => s.motDePasse === password);
+            
+            if (student) {
+                currentStudent = student;
+                document.getElementById('student-charts').classList.remove('hidden');
+                document.getElementById('student-charts-title').textContent = `Graphiques de ${student.nom}`;
+                generateStudentCharts(student);
+                messageDiv.innerHTML = '';
+            } else {
+                messageDiv.innerHTML = '<div class="message error">Mot de passe incorrect</div>';
+            }
+        }
+
+        // Générer les graphiques pour un élève
+        function generateStudentCharts(student) {
+            const data = JSON.parse(localStorage.getItem('studentData') || '[]');
+            const studentData = data.filter(d => d.nom === student.nom);
+            
+            // Graphiques par évaluation
+            const evaluationChartsDiv = document.getElementById('evaluation-charts');
+            evaluationChartsDiv.innerHTML = '';
+            
+            studentData.forEach(evalData => {
+                const evalDiv = document.createElement('div');
+                evalDiv.innerHTML = `
+                    <h3>${evalData.evaluation}</h3>
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h4>Qualité de tes réponses</h4>
+                            <canvas id="quality-${evalData.evaluation.replace(/\s+/g, '-')}"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h4>Que faire ensuite</h4>
+                            <canvas id="next-${evalData.evaluation.replace(/\s+/g, '-')}"></canvas>
+                        </div>
+                    </div>
+                `;
+                evaluationChartsDiv.appendChild(evalDiv);
+                
+                // Créer les graphiques
+                createBarChart(`quality-${evalData.evaluation.replace(/\s+/g, '-')}`, 
+                    ['VSC', 'Hors sujet', 'Faux', 'Incomplet'],
+                    [evalData.qualite.vsc, evalData.qualite.horsSujet, evalData.qualite.faux, evalData.qualite.incomplet],
+                    [schoolColors.blue, schoolColors.red, schoolColors.blueLight, schoolColors.redLight]
+                );
+                
+                createBarChart(`next-${evalData.evaluation.replace(/\s+/g, '-')}`, 
+                    ['Analyse question', 'Lecture stratégique', 'Rédaction', 'Mémoire'],
+                    [evalData.ensuite.analyse, evalData.ensuite.lecture, evalData.ensuite.redaction, evalData.ensuite.memoire],
+                    [schoolColors.blue, schoolColors.red, schoolColors.blueLight, schoolColors.redLight]
+                );
+            });
+            
+            // Graphiques de synthèse
+            if (studentData.length > 0) {
+                const qualiteTotals = studentData.reduce((acc, d) => {
+                    acc.vsc += d.qualite.vsc;
+                    acc.horsSujet += d.qualite.horsSujet;
+                    acc.faux += d.qualite.faux;
+                    acc.incomplet += d.qualite.incomplet;
+                    return acc;
+                }, {vsc: 0, horsSujet: 0, faux: 0, incomplet: 0});
+                
+                const ensuiteTotals = studentData.reduce((acc, d) => {
+                    acc.analyse += d.ensuite.analyse;
+                    acc.lecture += d.ensuite.lecture;
+                    acc.redaction += d.ensuite.redaction;
+                    acc.memoire += d.ensuite.memoire;
+                    return acc;
+                }, {analyse: 0, lecture: 0, redaction: 0, memoire: 0});
+                
+                createBarChart('summary-quality-chart',
+                    ['VSC', 'Hors sujet', 'Faux', 'Incomplet'],
+                    [qualiteTotals.vsc, qualiteTotals.horsSujet, qualiteTotals.faux, qualiteTotals.incomplet],
+                    [schoolColors.blue, schoolColors.red, schoolColors.blueLight, schoolColors.redLight]
+                );
+                
+                createBarChart('summary-next-chart',
+                    ['Analyse question', 'Lecture stratégique', 'Rédaction', 'Mémoire'],
+                    [ensuiteTotals.analyse, ensuiteTotals.lecture, ensuiteTotals.redaction, ensuiteTotals.memoire],
+                    [schoolColors.blue, schoolColors.red, schoolColors.blueLight, schoolColors.redLight]
+                );
+            }
+        }
+
+        // Créer un graphique en barres
+        function createBarChart(canvasId, labels, data, colors) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+            
+            // Détruire le graphique existant s'il y en a un
+            if (Chart.getChart(ctx)) {
+                Chart.getChart(ctx).destroy();
+            }
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: function(value) {
+                                return value;
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((bar, index) => {
+                                const data = dataset.data[index];
+                                if (data > 0) {
+                                    ctx.fillStyle = '#000';
+                                    ctx.font = '12px Arial';
+                                    ctx.textAlign = 'center';
+                                    ctx.fillText(data, bar.x, bar.y - 5);
+                                }
+                            });
+                        });
+                    }
+                }]
+            });
+        }
+
+        // Interface enseignant
+        function showTeacherPanel() {
+            hideAllPages();
+            document.getElementById('teacher-panel').classList.remove('hidden');
+            loadTeacherData();
+        }
+
+        function loadTeacherData() {
+            // Charger la liste des étudiants
+            const studentsListDiv = document.getElementById('students-list');
+            studentsListDiv.innerHTML = '';
+            
+            studentsData.forEach(student => {
+                const studentCard = document.createElement('div');
+                studentCard.className = 'student-card';
+                studentCard.innerHTML = `
+                    <strong>${student.nom}</strong><br>
+                    Classe ${student.classe}
+                `;
+                studentCard.onclick = () => showStudentDetails(student);
+                studentsListDiv.appendChild(studentCard);
+            });
+        }
+
+        function createEvaluation() {
+            const name = document.getElementById('new-eval-name').value;
+            const type = document.getElementById('eval-type').value;
+            const questions = parseInt(document.getElementById('question-count').value);
+            
+            if (!name) {
+                alert('Veuillez entrer un nom pour l\'évaluation');
+                return;
+            }
+            
+            const evaluation = {
+                name: name,
+                type: type,
+                questions: questions,
+                date: new Date().toISOString()
+            };
+            
+            let evaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
+            evaluations.push(evaluation);
+            localStorage.setItem('evaluations', JSON.stringify(evaluations));
+            
+            // Réinitialiser le formulaire
+            document.getElementById('new-eval-name').value = '';
+            document.getElementById('question-count').value = '15';
+            
+            alert('Évaluation créée avec succès !');
+        }
+
+        function showClassData(classFilter) {
+            const allData = JSON.parse(localStorage.getItem('studentData') || '[]');
+            let filteredData = allData;
+            
+            if (classFilter !== 'all') {
+                filteredData = allData.filter(d => d.classe.toString() === classFilter);
+            }
+            
+            // Mettre à jour les boutons actifs
+            document.querySelectorAll('.class-selector .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Générer les graphiques pour la classe
+            generateClassCharts(filteredData, classFilter);
+        }
+
+        function generateClassCharts(data, classFilter) {
+            const chartsDiv = document.getElementById('teacher-charts');
+            chartsDiv.innerHTML = `
+                <h4>Données - ${classFilter === 'all' ? 'Tous les élèves' : 'Classe ' + classFilter}</h4>
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h4>Qualité des réponses - Synthèse</h4>
+                        <canvas id="teacher-quality-chart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h4>Que faire ensuite - Synthèse</h4>
+                        <canvas id="teacher-next-chart"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            if (data.length === 0) {
+                chartsDiv.innerHTML += '<p>Aucune donnée disponible pour cette sélection.</p>';
+                return;
+            }
+            
+            // Calculer les totaux
+            const qualiteTotals = data.reduce((acc, d) => {
+                acc.vsc += d.qualite.vsc;
+                acc.horsSujet += d.qualite.horsSujet;
+                acc.faux += d.qualite.faux;
+                acc.incomplet += d.qualite.incomplet;
+                return acc;
+            }, {vsc: 0, horsSujet: 0, faux: 0, incomplet: 0});
+            
+            const ensuiteTotals = data.reduce((acc, d) => {
+                acc.analyse += d.ensuite.analyse;
+                acc.lecture += d.ensuite.lecture;
+                acc.redaction += d.ensuite.redaction;
+                acc.memoire += d.ensuite.memoire;
+                return acc;
+            }, {analyse: 0, lecture: 0, redaction: 0, memoire: 0});
+            
+            createBarChart('teacher-quality-chart',
+                ['VSC', 'Hors sujet', 'Faux', 'Incomplet'],
+                [qualiteTotals.vsc, qualiteTotals.horsSujet, qualiteTotals.faux, qualiteTotals.incomplet],
+                [schoolColors.blue, schoolColors.red, schoolColors.blueLight, schoolColors.redLight]
+            );
+            
+            createBarChart('teacher-next-chart',
+                ['Analyse question', 'Lecture stratégique', 'Rédaction', 'Mémoire'],
+                [ensuiteTotals.analyse, ensuiteTotals.lecture, ensuiteTotals.redaction, ensuiteTotals.memoire],
+                [schoolColors.blue, schoolColors.red, schoolColors.blueLight, schoolColors.redLight]
+            );
+        }
+
+        function showStudentDetails(student) {
+            const data = JSON.parse(localStorage.getItem('studentData') || '[]');
+            const studentData = data.filter(d => d.nom === student.nom);
+            
+            if (studentData.length === 0) {
+                alert(`Aucune donnée disponible pour ${student.nom}`);
+                return;
+            }
+            
+            // Créer une fenêtre modale ou une nouvelle section pour afficher les détails
+            const detailsWindow = window.open('', '_blank', 'width=800,height=600');
+            let html = `
+                <html>
+                <head>
+                    <title>Détails - ${student.nom}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .evaluation { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                        .section { background: #f8f9fa; padding: 15px; border-radius: 8px; }
+                        .section h4 { color: rgba(7,45,110,1); margin-bottom: 10px; }
+                        .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Détails pour ${student.nom} - Classe ${student.classe}</h1>
+            `;
+            
+            studentData.forEach(evalData => {
+                html += `
+                    <div class="evaluation">
+                        <h3>${evalData.evaluation}</h3>
+                        <small>Date: ${new Date(evalData.date).toLocaleDateString()}</small>
+                        <div class="grid">
+                            <div class="section">
+                                <h4>Qualité de tes réponses</h4>
+                                <div class="item"><span>VSC:</span> <span>${evalData.qualite.vsc}</span></div>
+                                <div class="item"><span>Hors sujet:</span> <span>${evalData.qualite.horsSujet}</span></div>
+                                <div class="item"><span>Faux:</span> <span>${evalData.qualite.faux}</span></div>
+                                <div class="item"><span>Incomplet:</span> <span>${evalData.qualite.incomplet}</span></div>
+                            </div>
+                            <div class="section">
+                                <h4>Que faire ensuite</h4>
+                                <div class="item"><span>Analyse question:</span> <span>${evalData.ensuite.analyse}</span></div>
+                                <div class="item"><span>Lecture stratégique:</span> <span>${evalData.ensuite.lecture}</span></div>
+                                <div class="item"><span>Rédaction:</span> <span>${evalData.ensuite.redaction}</span></div>
+                                <div class="item"><span>Mémoire:</span> <span>${evalData.ensuite.memoire}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</body></html>';
+            detailsWindow.document.write(html);
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            showHome();
+        });
+    </script>
+</body>
+</html>
